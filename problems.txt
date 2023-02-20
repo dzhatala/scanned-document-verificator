@@ -1,4 +1,8 @@
+scan problem:
 dns_scan__20220825_0018.jpg
 ns_ok_scanned\canon_lide_output\dns_scan__20220826_0017.jpg
 ns_ok_scanned\canon_lide_output\dns_scan__20220826_0030.jpg
 ns_ok_scanned\canon_lide_output\dns_scan__20220826_0031.jpg
+
+dns_scan__20220824_0002.jpg
+	bad nim 59 ==> 88 ? retrain 

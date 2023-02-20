@@ -2,7 +2,7 @@
 @rem goto NO_SET_CP
 
 set PATH=""
-set PATH=E:\master_yoga\java\eclipse-java-2022-03-R-win32-x86_64\eclipse\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_17.0.2.v20220201-1208\jre\bin;%PATH%
+set PATH=j:\master_yoga\java\eclipse-java-2022-03-R-win32-x86_64\eclipse\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_17.0.2.v20220201-1208\jre\bin;%PATH%
 
 @rem 
 set CP=

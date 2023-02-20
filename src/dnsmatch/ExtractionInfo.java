@@ -24,4 +24,11 @@ public class ExtractionInfo {
 	public MatchInfo info;//level 1 info
 	public MatchInfo info2;//level 2 info
 	public Expansion expansion=Expansion.RIGHT;
+	
+	public String toString() {
+		return "haystack: "+haystack +
+				"\n" + "templateAll: " + templateAll+
+				"\n" +"templateField: "+templateField; 
+				
+	}
 }

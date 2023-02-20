@@ -1,6 +1,5 @@
 package tests;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,13 +18,15 @@ import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageInputStream;
 
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.sanselan.ImageInfo;
-import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
+//import org.apache.sanselan.ImageInfo;
+//import org.apache.sanselan.ImageReadException;
+//import org.apache.sanselan.Sanselan;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -35,7 +36,6 @@ import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.CvType;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.imgproc.LineSegmentDetector;
 import org.w3c.dom.NodeList;
 
 import com.recognition.software.jdeskew.ImageDeskew;
@@ -50,6 +50,11 @@ import utils.ImageUtils;
 import utils.Metadata;
 import utils.TextUtils;
 
+/**
+ *  last working 
+ * @author User
+ *
+ */
 public class rev_03_DNSChecker {
 
 	private static int LETTER_WIDTH = 20; // TODO approximate letter width in pixels ?
@@ -60,8 +65,9 @@ public class rev_03_DNSChecker {
 	 * @param fName
 	 * @throws IOException
 	 * @throws ImageReadException
+	 * @throws org.apache.sanselan.ImageReadException 
 	 */
-	public static void imageInfoDPI(String fName) throws IOException, ImageReadException {
+	public static void imageInfoDPI(String fName) throws IOException, ImageReadException, org.apache.sanselan.ImageReadException {
 		File input = new File(fName);
 
 		System.out.println(" Check image : " + fName);
@@ -676,6 +682,7 @@ public class rev_03_DNSChecker {
 		String ftpl = "F:/rsync/RESEARCHS/text_recognition_ocr_dns_scan/data/template_nama_nim_ttl.jpg";
 		String toTesseractFN = matchTemplate(fsrc, ftpl, true);
 		if (toTesseractFN != null) {
+			
 			String[] ocred = runTesseract(toTesseractFN);
 //			
 			List<NameValuePair> list = validateTTL(ocred[0]);// stdout

@@ -1,5 +1,6 @@
 package dnsmatch;
 
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -18,6 +19,8 @@ import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.opencv.core.Mat;
 
+import com.github.jaiimageio.impl.common.ImageUtil;
+
 import net.sourceforge.tess4j.Tesseract;
 import utils.TextUtils;
 import utils.XLSUtils;
@@ -25,18 +28,89 @@ import utils.XLSUtils;
 public class MainApp {
 	static Hashtable<String, DNSRecord> NIM2DNS = new Hashtable<String, DNSRecord>();
 	static Tesseract tesseract = null;
+	static String base_dir = "F:\\rsync\\poltek\\dns_ok_scanned";
 
 	public static void main(String args[]) throws Exception {
-		ArrayList<XLSDNSTable> lsh = all_sheets();
-		for (int i = 0; i < lsh.size(); i++)
+		ArrayList<XLSDNSTable> lsh = all_sheets_2122_genap();
+//		ArrayList<XLSDNSTable> lsh = all_sheets_2122_ganjil();
+		for (int i = 0; i < lsh.size(); i++) {
 			load_xls_database(lsh.get(i));
-		String dirPolnam = "F:/rsync/poltek/dns_ok_scanned/canon_lide_output";
+			
+		}
+		
+		String dirPolnam = "F:/rsync/poltek/dns_ok_scanned/canon_lide_output/21_22_genap";
+//		String dirPolnam = "F:/rsync/poltek/dns_ok_scanned/canon_lide_output/21_22_ganjil";
+		if (args.length > 1) {
+			if (args[0].equals("-d")) {
+				dirPolnam = args[1];
+			} else {
+				System.out.println(args[0] + " is wrong");
+				System.out.println("java : java DNSChecker -d dirname");
+				System.exit(-1);
+			}
+		}
+		
 		initialize_config();
 		extract_and_check_dir(dirPolnam);
 
 	}
+	
+	private static ArrayList<XLSDNSTable> all_sheets_2122_ganjil() {
+		// TODO Auto-generated method stub
+		ArrayList<XLSDNSTable> ret = new ArrayList<XLSDNSTable>();
+		XLSDNSTable tb = new XLSDNSTable();// VI_B
+		ret.add(tb);
 
-	private static ArrayList<XLSDNSTable> all_sheets() {
+		tb = new XLSDNSTable();
+		tb.xls_dir = "F:\\rsync\\poltek\\21-22\\ganjil\\evaluasi_kaprodi";
+		tb.xls_fname = "evaluasi_21_22_ganjil.xlsx";
+		tb.sheetfn = "I_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 127;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "AD";
+		ret.add(tb);
+
+		tb = new XLSDNSTable();
+		tb.xls_dir = "F:\\rsync\\poltek\\21-22\\ganjil\\evaluasi_kaprodi";
+		tb.xls_fname = "evaluasi_21_22_ganjil.xlsx";
+		tb.sheetfn = "III_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 118;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "V";
+		ret.add(tb);
+
+		
+		tb = new XLSDNSTable();
+		tb.xls_dir = "F:\\rsync\\poltek\\21-22\\ganjil\\evaluasi_kaprodi";
+		tb.xls_fname = "evaluasi_21_22_ganjil.xlsx";
+		tb.sheetfn = "V_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 95;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "T";
+		ret.add(tb);
+
+		tb = new XLSDNSTable();
+		tb.xls_dir = "F:\\rsync\\poltek\\21-22\\ganjil\\evaluasi_kaprodi";
+		tb.xls_fname = "evaluasi_21_22_ganjil.xlsx";
+		tb.sheetfn = "VII_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 105;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "T";
+		ret.add(tb);
+
+		
+		return ret;
+	}
+
+	private static ArrayList<XLSDNSTable> all_sheets_2122_genap() {
 		// TODO Auto-generated method stub
 		ArrayList<XLSDNSTable> ret = new ArrayList<XLSDNSTable>();
 		XLSDNSTable tb = new XLSDNSTable();// VI_B
@@ -139,7 +213,9 @@ public class MainApp {
 	 * 
 	 * @throws Exception
 	 */
+	static boolean debug_stop=true;
 	public static void extract_and_check_dir(String dirPolnam) throws Exception {
+		System.out.println("check dns dir= "+dirPolnam);
 		String hFN = dirPolnam + "/dns_scan__20220825_0006.jpg";
 
 		File dir = new File(dirPolnam);
@@ -153,11 +229,15 @@ public class MainApp {
 			hFN = files[i].getAbsolutePath();
 			System.out.println(new Date());
 			System.out.println("Processing: " + hFN);
-			DNSRecord found = extract_and_check_single(hFN);
+			DNSRecord found = ROI_check_single(hFN);
 			if (found != null) {
 				move_found(found);
 			} else {
 				System.out.println("found failed: " + hFN);
+				if(debug_stop) {
+					System.err.println("Exiting ... by debug_stop="+debug_stop);
+					System.exit(-1);
+				}
 				continue;
 //				throw new Exception("found failed: " + hFN);
 			}
@@ -166,7 +246,6 @@ public class MainApp {
 
 	}
 
-	static String base_dir = "F:\\rsync\\poltek\\dns_ok_scanned";
 
 	private static void move_found(DNSRecord found) throws Exception {
 		// TODO Auto-generated method stub
@@ -211,13 +290,14 @@ public class MainApp {
 		if (success) {
 			System.out.println("success:" + moveFN);
 		} else {
-			System.out.println("error:" + moveFN);
+			System.err.println("error:" + moveFN);
 		}
 	}
 
 	private static void load_xls_database(XLSDNSTable tb) throws IOException {
 		// TODO Auto-generated method stub
 
+		System.out.println("load xls: "+tb.sheetfn);
 		String xls_dir = tb.xls_dir;
 		String xls_fname = tb.xls_fname;
 
@@ -231,21 +311,55 @@ public class MainApp {
 		for (int i = row_begin; i <= row_end; i++) {
 			// https://stackoverflow.com/questions/5578535/get-cell-value-from-excel-sheet-with-apache-poi
 			CellReference crNAMA = new CellReference(NAMA_col + i);
+			if(crNAMA==null)continue;
 			Row row = sheet.getRow(crNAMA.getRow());
+			if(row==null)continue;
 			Cell cell = row.getCell(crNAMA.getCol());
+			if(cell==null) {
+				System.err.println( "NAMA null at " +tb.sheetfn+ " row "+ i);
+				continue;
+			}
 			String nama = cell.getStringCellValue();
-
+			if(nama.length()==0)continue;
+			
 			CellReference crNIM = new CellReference(NIM_col + i);
+			if(crNIM==null)continue;
 			row = sheet.getRow(crNIM.getRow());
+			if(row==null)continue;
 			cell = row.getCell(crNIM.getCol());
+			if(cell==null) {
+				System.err.println( "NIM null at " +tb.sheetfn+ " row "+ i);
+				continue;
+			}
 			cell.setCellType(CellType.STRING);
 			String NIM = cell.getStringCellValue();
-
+			if(NIM.length()==0)continue;
+			
 			CellReference crIPK = new CellReference(IPK_col + i);
+			if(crIPK==null)continue;
+
 			row = sheet.getRow(crIPK.getRow());
+			if(row==null)continue;
 			cell = row.getCell(crIPK.getCol());
+			if(cell==null) {
+				System.err.println( "IPK null at " +tb.sheetfn+ " row "+ i);
+				continue;
+			}
 			cell.setCellType(CellType.STRING);
-			float ipk = Float.parseFloat(cell.getStringCellValue().replace(",", "."));
+			String ipkS=cell.getStringCellValue().replace(",", ".");
+			if(ipkS.length()==0)continue;
+
+			float ipk=(float)0.0;
+			try{
+				ipk = Float.parseFloat(ipkS);
+			}catch (NumberFormatException ex) {
+				System.err.println("BAD IPK for nama: "+nama+ ", nim: "+NIM);
+				continue;
+			}
+			
+			if(ipk==0) {
+				System.err.println("warning BAD IPK="+ipk);
+			}
 
 			// System.out.println("NAMA: "+nama+", NIM:"+NIM+", IPK="+ipk);
 			String[] sem = sheetfn.split("_");
@@ -264,29 +378,178 @@ public class MainApp {
 	}
 
 	static String dirTPL = "F:/rsync/RESEARCHS/text_recognition_ocr_dns_scan/data/templates/nim_nama_ttl";
-	static Mat tfieldSEMESTER;
-	static Mat tfieldNIM;
-	static Mat tfieldNAMA;
-	static Mat tfieldTTL;
-	static Mat tfieldIPK;
-	static Mat tAllIPK;
+	static Mat tfieldSEMESTER=null;
+	static Mat tfieldCOLLECTIVE=null;
+	static Mat tfieldNIM=null;
+	static Mat tfieldNAMA=null;
+	static Mat tfieldTTL=null;
+	static Mat tfieldIPK=null;
+	static Mat tAllIPK=null;
 
 	static void initialize_config() throws Exception {
-		dirTPL = "F:/rsync/RESEARCHS/text_recognition_ocr_dns_scan/data/templates/nim_nama_ttl";
-		tfieldSEMESTER = TemplateValueExtractor.readDeskew(dirTPL + "/semester/semester_field.jpg");
-		tfieldNIM = TemplateValueExtractor.readDeskew(dirTPL + "/nim/nim_field.jpg");
-		tfieldNAMA = TemplateValueExtractor.readDeskew(dirTPL + "/nama/nama_field.jpg");
-		tfieldTTL = TemplateValueExtractor.readDeskew(dirTPL + "/ttl/ttl_field.jpg");
-		tfieldIPK = TemplateValueExtractor.readDeskew(dirTPL + "/ipk/ipk_field.jpg");
-		tAllIPK = TemplateValueExtractor.readDeskew(dirTPL + "/ipk/ipk_all.jpg");
+//		dirTPL = "F:/rsync/RESEARCHS/text_recognition_ocr_dns_scan/data/templates/nim_nama_ttl";
+		dirTPL = "F:/rsync/RESEARCHS/text_recognition_ocr_dns_scan/data/templates/21_061";
+//		tfieldSEMESTER = TemplateValueExtractor.readDeskew(dirTPL + "/semester/semester_field.jpg");
+		tfieldNIM = TemplateValueExtractor.readDeskew(dirTPL + "/nim/NIM_field.jpg",false);
+//		tfieldCOLLECTIVE = TemplateValueExtractor.readDeskew(dirTPL + "/COLLECTIVE_field.jpg",true);
+//		tfieldCOLLECTIVE = TemplateValueExtractor.readDeskew(dirTPL + "/COLLECTIVE_L_field.jpg",true);
+		tfieldCOLLECTIVE = TemplateValueExtractor.readDeskew(dirTPL + "/COLLECTIVE_c_tfield.jpg",true);
+		tfieldNAMA = TemplateValueExtractor.readDeskew(dirTPL + "/nama/nama_field.jpg",false);
+		tfieldTTL = TemplateValueExtractor.readDeskew(dirTPL + "/ttl/ttl_field.jpg",false);
+		tfieldIPK = TemplateValueExtractor.readDeskew(dirTPL + "/ipk/ipk_field.jpg",false);
+		tAllIPK = TemplateValueExtractor.readDeskew(dirTPL + "/ipk/ipk_all.jpg",false);
+		System.out.println("Templates read from "+dirTPL);
 	}
 
-	public static DNSRecord extract_and_check_single(String hFN) throws Exception {
+	public static DNSRecord ROI_check_single(String hFN) throws Exception {
+		DNSRecord found = null;
+		String logDir="F:\\rsync\\eclipse2022_wspace\\opencvTest01\\logROI";
+		String LEVHN_NIM = null, LEVHN_NAMA = null;
+//		String hFN = dirTPL + "/haystack.jpg";
+
+		Mat haystack = TemplateValueExtractor.readDeskew(hFN,true);
+//		x.setOutputDirectory(dir);
+		TemplateValueExtractor x = new TemplateValueExtractor(null);
+		getTesseract().setVariable("user_defined_dpi", "300");
+
+		ExtractionInfo ei=extract_right(logDir+"/COLLECTIVE","COLLECTIVE",haystack,tfieldCOLLECTIVE,x,true);
+
+		
+		Mat expanded1=ei.info.expanded;
+		x.setTesseract(getTesseract());
+		x.getTesseract().setPageSegMode(7); // for semester is good with 7
+		x.getTesseract().setVariable("tessedit_char_whitelist", " 0123456789|:");// unset white list character
+		extract_right(logDir+"/nim","NIM",expanded1,tfieldNIM,x);
+
+		x.getTesseract().setPageSegMode(1); // for semester is good with 7
+		x.getTesseract().setVariable("tessedit_char_whitelist", "");// unset white list character
+		extract_right(logDir+"/nama", "NAMA", expanded1, tfieldNAMA, x);
+
+		x.getTesseract().setPageSegMode(1); // for semester is good with 7
+		x.getTesseract().setVariable("tessedit_char_whitelist", "");// unset white list character
+		extract_right(logDir+"/ttl", "TTL", expanded1, tfieldTTL, x);
+
+//		String tessW64="C:/Program Files/Tesseract-OCR";
+		x.getTesseract().setPageSegMode(7); // 7 : single text line
+		x.getTesseract().setVariable("tessedit_char_whitelist", " .,0123456789|");// unset white list character
+//		extract_right_inside(tessW64,"IPK",haystack,tAllIPK,tfieldIPK,x);
+		extract_right_inside(logDir+"/ipk","IPK",haystack,tAllIPK,tfieldIPK,x);
+//		extract_right_inside(null, "IPK", haystack, tAllIPK, tfieldIPK, x);
+
+		// exact matches of NIM and nama
+		ExtractionInfo info = (ExtractionInfo) x.extractValue("NIM");
+		String[] sar = info.value.split("\n");
+		info.value = sar[0];
+		sar = info.value.split(" ");
+		if (sar[0].length() == 10)
+			info.value = sar[0]; // NIM on first word ==> 1320144033 7 4 7
+		String s = info.value.trim().toUpperCase().replaceAll("\\s", "").replace("|", "");
+		s=s.replace(",", "").replace(":", "").replace("|", "");
+		info.value=s;
+	
+		//first is ':'   not finding empty NIM: :3121094056 l: 11
+		if (info.value.startsWith(":")) {
+			System.err.println("removing first colon" + info.value);
+			
+			
+			info.value=info.value.substring(1);
+			s=info.value;
+		}
+		
+		//flipped '13'
+		if (info.value.length()==10 && info.value.startsWith("31")) {
+			info.value="13"+info.value.substring(2);
+			s=info.value;	
+		}
+			
+		
+		
+		//more than length NIM ?
+		if(s.length()>10 && s.indexOf("13")>=0) {
+			int start13=s.indexOf("13");
+			System.out.println("finding 13");
+			s=s.substring(start13,start13+10);
+			info.value=s;
+		}
+		
+		if (s.length() > 5)
+			LEVHN_NIM = s; // half for later check
+		if (info.value != null && info.value.length() == 10) {
+
+			System.out.println("l_10 => " + info.value);
+			found = NIM2DNS.getOrDefault(s, null);
+			if (found != null) {
+				found.ocr_image_filename = hFN;
+//				return found;
+			}else {
+				System.err.println("NIM(10) BUT NOT in DB => " + info.value);
+			}
+		} else {
+			System.out.println("not finding empty NIM: " + info.value + " l: " + info.value.length());
+
+		}
+
+		if (found == null) {// exact NIM no ?
+			info = (ExtractionInfo) x.extractValue("NAMA");
+			sar = info.value.split("\n");
+			info.value = sar[0];
+			LEVHN_NAMA=info.value;
+			if (info.value != null && info.value.length() > 0) {
+				s = info.value.trim().toUpperCase().replaceAll("\\s", "");
+				found = NIM2DNS.getOrDefault(s, null);
+//			System.out.println("try find: #" + s + "#");
+				if (found != null) {
+				System.out.println("EXACT MATCH=> " + found);
+					found.ocr_image_filename = hFN;
+//				return found;
+				} else {
+					LEVHN_NAMA = s;
+				}
+			} else {
+				System.out.println("not search for empty NAMA");
+
+			}
+		}
+		// NO_EXACT_MATCH use edit distance
+		if (found == null) {
+			found = levehnsteinFind(LEVHN_NIM, LEVHN_NAMA);
+		}
+
+		if (found != null) {
+			found.ocr_image_filename = hFN;
+			info = (ExtractionInfo) x.extractValue("IPK");
+			String ipkstr = info.value;
+			ipkstr=ipkstr.replace("|", "").replace(",", ".");
+			ipkstr=ipkstr.trim();
+			
+			///ipk : 3.34 |  3.34 1
+			String ar[]=ipkstr.split(" ");
+			ipkstr=ar[0];
+			for (int i=1 ; i<ar.length; i++) {
+				if(ar[i].length()>ipkstr.length()) {
+					ipkstr=ar[i];
+				}
+			}
+			// 2 digit precision
+			if (Math.abs(Float.parseFloat(ipkstr) - found.ipk)>=0.01) {
+				if (ipkstr.trim().length() == 3 && Float.parseFloat(ipkstr) > 0) {
+					ipkstr = ipkstr.substring(0, 1) + "." + ipkstr.substring(1, 3);// \dns_scan__20220825_0015.jpg 323
+				} else
+					throw new Exception("IPK not same: ->" + ipkstr + "!=" + found.ipk + "<- " + found);
+			}
+		}
+		return found;
+
+	}
+	
+	/* no collective? */
+	
+	public static DNSRecord fullpage_check_single(String hFN) throws Exception {
 		DNSRecord found = null;
 		String LEVHN_NIM = null, LEVHN_NAMA = null;
 //		String hFN = dirTPL + "/haystack.jpg";
 
-		Mat haystack = TemplateValueExtractor.readDeskew(hFN);
+		Mat haystack = TemplateValueExtractor.readDeskew(hFN,true);
 //		x.setOutputDirectory(dir);
 		TemplateValueExtractor x = new TemplateValueExtractor(null);
 		x.setTesseract(getTesseract());
@@ -310,9 +573,9 @@ public class MainApp {
 		x.getTesseract().setVariable("tessedit_char_whitelist", "");// unset white list character
 		extract_right(null, "TTL", haystack, tfieldTTL, x);
 
-//		extract_right_inside(dirTPL+"/ipk","IPK",haystack,tAllIPK,tfieldIPK,x);
-		x.getTesseract().setVariable("tessedit_char_whitelist", " ,0123456789");// unset white list character
-		extract_right_inside(null, "IPK", haystack, tAllIPK, tfieldIPK, x);
+		extract_right_inside(dirTPL+"/ipk","IPK",haystack,tAllIPK,tfieldIPK,x);
+		x.getTesseract().setVariable("tessedit_char_whitelist", " .,0123456789");// unset white list character
+//		extract_right_inside(null, "IPK", haystack, tAllIPK, tfieldIPK, x);
 
 		// exact matches of NIM and nama
 		ExtractionInfo info = (ExtractionInfo) x.extractValue("NIM");
@@ -378,6 +641,7 @@ public class MainApp {
 
 	}
 
+
 	private static DNSRecord levehnsteinFind(String LEVHN_NIM, String LEVHN_NAMA) {
 		// TODO Auto-generated method stub
 		System.out.println("Levehnstein find(" + LEVHN_NIM + "," + LEVHN_NAMA + ")");
@@ -418,34 +682,48 @@ public class MainApp {
 
 	public static void extract_right_inside(String dir, String field, Mat haystack, Mat tall, Mat tfield,
 			TemplateValueExtractor x) throws Exception {
+		System.out.println("xri() "+field);
 		x.setOutputDirectory(dir);
 		x.register(field, haystack, tall, tfield);
 		ExtractionInfo eipk = (ExtractionInfo) x.extractValue(field);
-		System.out.println(eipk.value);
+		System.out.println("eri: "+field+"="+eipk.value);
 
 	}
 
-	public static void extract_right(String dir, String field, Mat haystack, Mat tField, TemplateValueExtractor x)
+	public static ExtractionInfo extract_right(String dir, String field, Mat haystack, Mat tField, TemplateValueExtractor x)
+			throws Exception {
+		return extract_right(dir, field, haystack, tField, x,false);
+	}
+	public static ExtractionInfo extract_right(String dir, String field, Mat haystack, Mat tField, TemplateValueExtractor x,boolean noOCR)
 			throws Exception {
 
-//		System.out.println(tall);
-		ExtractionInfo ei = new ExtractionInfo("pre_" + field, haystack, tField, null);
+		System.out.println("Extract right :"+field);
+		String newName=noOCR? field:"pre_" + field;
+		ExtractionInfo ei = new ExtractionInfo(newName, haystack, tField, null);
+		System.out.println(ei);
 		x.setOutputDirectory(dir);
 		x.register(ei);
-		x.extractValue("pre_" + field);
+		x.extractValue(newName);
+		if(noOCR) {
+			System.err.println("warning exit without 2nd extract: "+field);
+			return ei ;// no need to extract .. 
+		}
 		Mat tall = ei.info.expanded;
-//		System.out.println(tall);
-//		System.out.println(tfield);
+		System.out.println("2nd extract: "+field);
+		System.out.println(tall);
+		System.out.println(tField);
 		ei = new ExtractionInfo(field, haystack, tall, tField);
 		x.register(ei);
-		ei = (ExtractionInfo) x.extractValue(field);
-		System.out.println(ei.value);
+		x.extractValue(field);
+		return ei;
 	}
 
+	 
 	static Tesseract getTesseract() {
 		if (tesseract == null) {
 			tesseract = new Tesseract();
-			tesseract.setDatapath("c:/cygwin32/usr/share/tessdata");
+//			tesseract.setDatapath("c:/cygwin32/usr/share/tessdata");
+			tesseract.setDatapath("c:/cygwin64/usr/share/tessdata");
 
 			tesseract.setVariable("tessedit_char_whitelist", " 0123456789. ,");
 			tesseract.setVariable("user_defined_dpi", "300");

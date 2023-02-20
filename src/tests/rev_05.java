@@ -143,9 +143,9 @@ public class rev_05 {
 		String hFN = dir + "/haystack.jpg";
 		String tAllFN = dir + "/ipk_all.jpg";
 		String tFieldFN = dir + "/ipk_field.jpg";
-		Mat haystack = TemplateValueExtractor.readDeskew(hFN);
-		Mat tall = TemplateValueExtractor.readDeskew(tAllFN);
-		Mat tfield = TemplateValueExtractor.readDeskew(tFieldFN);
+		Mat haystack = TemplateValueExtractor.readDeskew(hFN,true);
+		Mat tall = TemplateValueExtractor.readDeskew(tAllFN,false);
+		Mat tfield = TemplateValueExtractor.readDeskew(tFieldFN,false);
 
 		x.register("IPK", haystack, tall, tfield);
 		x.setTesseract(getTesseract());
@@ -158,7 +158,7 @@ public class rev_05 {
 //		x.setOutputDirectory(dir);
 		x.setOutputDirectory(null);
 		tFieldFN = dir + "/nim_field.jpg";
-		tfield = TemplateValueExtractor.readDeskew(tFieldFN);
+		tfield = TemplateValueExtractor.readDeskew(tFieldFN,false);
 //		System.out.println(tall);
 		ExtractionInfo ei = new ExtractionInfo("pre_NIM", haystack, tfield, null);
 		x.register(ei);
@@ -179,7 +179,7 @@ public class rev_05 {
 //		x.setOutputDirectory(dir);
 		x.setOutputDirectory(null);
 		tFieldFN = dir + "/ttl_field.jpg";
-		tfield = TemplateValueExtractor.readDeskew(tFieldFN);
+		tfield = TemplateValueExtractor.readDeskew(tFieldFN,false);
 //		System.out.println(tall);
 		ei = new ExtractionInfo("pre_TTL", haystack, tfield, null);
 		x.register(ei);
@@ -200,7 +200,7 @@ public class rev_05 {
 //		x.setOutputDirectory(dir);
 		x.setOutputDirectory(null);
 		tFieldFN = dir + "/nama_field.jpg";
-		tfield = TemplateValueExtractor.readDeskew(tFieldFN);
+		tfield = TemplateValueExtractor.readDeskew(tFieldFN,false);
 //		System.out.println(tall);
 		ei = new ExtractionInfo("pre_NAMA", haystack, tfield, null);
 		x.register(ei);
@@ -299,7 +299,7 @@ public class rev_05 {
 
 	static void weird_01() throws Exception {
 		String dir = "F:/rsync/RESEARCHS/text_recognition_ocr_dns_scan/data/templates/nim_nama_ttl";
-		Mat weird = TemplateValueExtractor.readDeskew(dir + "/weird.jpg");
+		Mat weird = TemplateValueExtractor.readDeskew(dir + "/weird.jpg",false);
 
 //		Core.bitwise_not(weird, weird);
 		BufferedImage toTess = ImageUtils.LossyMat2BufferedImage(weird);

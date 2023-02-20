@@ -87,10 +87,11 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 
 	@Override
 	public Object extractValue(String field) throws Exception {
-
+		
 		ExtractionInfo ret = field2Info.getOrDefault(field, null);
 		if (ret != null) {
 			if (ret.value == null) {
+				System.out.println("xV() "+field);
 //				System.out.println(ret.haystack);
 //				System.out.println(ret.templateAll);
 				MatchInfo info = templateMatching(ret.templateAll, ret.haystack);
@@ -98,25 +99,46 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 					System.out.println("Write to: " + outputDir);
 					Imgcodecs.imwrite(this.outputDir + "/" + field + "_NEXP_LR_1ST.jpg", info.matchNoExpanded);
 					Imgcodecs.imwrite(this.outputDir + "/" + field + "_EXP_LR_1ST.jpg", info.expanded);
+					Imgcodecs.imwrite(this.outputDir + "/" + field + "_haystack.jpg", ret.haystack);
+					Imgcodecs.imwrite(this.outputDir + "/" + field + "_tall_1ST.jpg", ret.templateAll);
 				}
 				ret.info = info;
-				if (ret.templateField == null)
+				if (ret.templateField == null) {
+					System.err.println("xv() tField is "+ret.templateField);
 					return ret;
-
+				}
+				System.out.println("creating info2");
+				
+				//second level if feld is NOT null
 				MatchInfo info2 = templateMatching(ret.templateField, info.matchNoExpanded);
 				ret.info2 = info2;
 				if (outputDir != null) {
 					Imgcodecs.imwrite(this.outputDir + "/" + field + "_NEXP_LR_2ND.jpg", info2.matchNoExpanded);
 					Imgcodecs.imwrite(this.outputDir + "/" + field + "_EXP_R_2ND.jpg", info2.valuePortion);
+					Imgcodecs.imwrite(this.outputDir + "/" + field + "_Tfield.jpg", ret.templateField);
 				}
 
 				BufferedImage toTess = ImageUtils.LossyMat2BufferedImage(info2.valuePortion);
 
+				System.out.println("ocr : teseract="+tesseract);
+				System.out.println("ocr : goTess="+toTess);
 				if (toTess != null && tesseract != null) {
 					try {
-						if (outputDir != null)
-							ImageIO.write(toTess, "jpg", new File(this.outputDir + "toTess.jpg"));
+						
 						ret.value = tesseract.doOCR(toTess);
+						// do ocr failed but cygwin tess ok ?
+						String tessFname =null;
+						if (outputDir != null) {
+							tessFname = this.outputDir + "/" + field + "_toTess.jpg";
+							System.out.println("write to " + tessFname);
+							ImageIO.write(toTess, "jpg", new File(tessFname));
+							
+						}
+						if (tessFname!=null && ret.value.length()==0 ) {
+							System.err.println("cmd: tesseract.exe "+tessFname);
+							utils.TextUtils.runTesseract(tessFname);
+						}
+						System.err.println(ret.value);
 						return ret;
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -143,9 +165,10 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 	 * @param template to be found in source
 	 * @param source
 	 * @return
+	 * @throws IOException 
 	 */
-	public static MatchInfo templateMatching(Mat template, Mat source, Expansion ex) {
-//		System.out.format("Template matching %d in %d \n", template.height(), source.height());
+	public static MatchInfo templateMatching(Mat template, Mat source, Expansion ex) throws IOException {
+		//System.out.format("Template matching %d in %d \n", template.height(), source.height());
 //		https: // riptutorial.com/opencv/example/22915/template-matching-with-java
 //		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		Mat outputImage = new Mat();
@@ -165,6 +188,8 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 		Point rb = new Point(lt.x + template.cols(), lt.y + template.rows()); // right bottom
 
 		ret.matchNoExpanded = scopy.submat((int) lt.y, (int) rb.y, (int) lt.x, (int) rb.x);
+//		ImageIO.write(ImageUtils.LossyMat2BufferedImage(ret.matchNoExpanded),"jpg",
+//				new File("F:/rsync/eclipse2022_wspace/opencvTest01/logROI/log1.jpg" ));
 		if (ret.expansion == Expansion.LEFT || ret.expansion == Expansion.RIGHT)
 			ret.expanded = scopy.submat((int) lt.y, (int) (lt.y + template.rows()), (int) lt.x, (int) source.cols());
 		if (ret.expansion == Expansion.RIGHT) {
@@ -173,7 +198,7 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 		return ret;
 	}
 
-	public static MatchInfo templateMatching(Mat template, Mat source) {
+	public static MatchInfo templateMatching(Mat template, Mat source) throws Exception {
 		return templateMatching(template, source, Expansion.RIGHT);
 	}
 
@@ -193,15 +218,18 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 		return ret;
 
 	}
+	
+
+	
 
 	/**
 	 * read and deskew
 	 * 
 	 * @throws Exception
 	 **/
-	public static Mat readDeskew(String imageFN) throws Exception {
+	public static Mat readDeskew(String imageFN, boolean doSkew) throws Exception {
 
-//		System.out.println("Single Image");
+		System.out.println("Read Deskew");
 		Metadata m = Metadata.metadataFromFile(imageFN);
 		System.out.println("Density: " + m.getXDensity() + " " + m.getYDensity());
 		if (m.getXDensity() < 300 || m.getYDensity() < 300)
@@ -211,9 +239,11 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 		bimg = ImageHelper.convertImageToBinary(bimg);
 
 //		System.out.println("Warning deskew is not performed");
-		BufferedImage dskwdBimg = deskew(bimg);
+		
+		if(doSkew) 
+		bimg = deskew(bimg);
 
-		Mat matSrc = ImageUtils.LossyBufferedImage2Mat(dskwdBimg, Imgcodecs.IMREAD_GRAYSCALE);
+		Mat matSrc = ImageUtils.LossyBufferedImage2Mat(bimg, Imgcodecs.IMREAD_GRAYSCALE);
 
 		return matSrc;
 
@@ -223,8 +253,8 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 		String dir = "F:/rsync/RESEARCHS/text_recognition_ocr_dns_scan/data/test/testTemplate";
 		String hFN = dir + "/haystack.jpg";
 		String tFN = dir + "/template.jpg";
-		Mat haystack = readDeskew(hFN);
-		Mat template = readDeskew(tFN);
+		Mat haystack = readDeskew(hFN,true);
+		Mat template = readDeskew(tFN,true);
 //		System.out.println(haystack);
 //		System.out.println(template);
 		MatchInfo info = templateMatching(template, haystack);
