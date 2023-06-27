@@ -53,4 +53,5 @@ set CLASS_NAME=dnsmatch.MainApp
 date /T
 time /T
 @rem 
+java -version
 java -Djava.libary.path="F:\rsync\RESEARCHS\text_recognition_ocr_dns_scan\opencv\opencv\build\java\x64" -cp bin;%CP% %CLASS_NAME% %1 %2 %3 %4
