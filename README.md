@@ -6,9 +6,7 @@ Build id: 20220310-1457
 - the jars required can be seen on run_win32.bat
 
 the java version also can be seen in run_win32.bat
-
 last time successful running:
-
 F:\rsync\eclipse2022_wspace\opencvTest01>java -version
 openjdk version "17.0.2" 2022-01-18
 OpenJDK Runtime Environment Temurin-17.0.2+8 (build 17.0.2+8)
