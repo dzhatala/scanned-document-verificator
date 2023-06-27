@@ -86,6 +86,9 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 	}
 
 	@Override
+	/**
+	 * 
+	 */
 	public Object extractValue(String field) throws Exception {
 		
 		ExtractionInfo ret = field2Info.getOrDefault(field, null);
@@ -103,6 +106,7 @@ public class TemplateValueExtractor implements FieldValueExtractor {
 					Imgcodecs.imwrite(this.outputDir + "/" + field + "_tall_1ST.jpg", ret.templateAll);
 				}
 				ret.info = info;
+				//RETURNING ... nothing to extract
 				if (ret.templateField == null) {
 					System.err.println("xv() tField is "+ret.templateField);
 					return ret;

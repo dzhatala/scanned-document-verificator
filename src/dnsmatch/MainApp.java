@@ -26,35 +26,65 @@ import utils.TextUtils;
 import utils.XLSUtils;
 
 public class MainApp {
+	static 		String logDir="F:\\rsync\\eclipse2022_wspace\\opencvTest01\\logROI";
+	private static final int ERROR_PARSE=7;
 	static Hashtable<String, DNSRecord> NIM2DNS = new Hashtable<String, DNSRecord>();
 	static Tesseract tesseract = null;
-	static String base_dir = "F:\\rsync\\poltek\\dns_ok_scanned";
-
+//	static String dirTgtBase = "F:\\rsync\\poltek\\dns_ok_scanned";
+	static String dirTgtBase = "./moved";
+	static String dirSrc="./problems";
+	static boolean moveAfterCheck=false ; // moved and arrange into dirTgtBase
 	public static void main(String args[]) throws Exception {
-		ArrayList<XLSDNSTable> lsh = all_sheets_2122_genap();
+		System.out.println("Source directory : "+dirSrc);
+		System.out.println("Target Base directory : "+dirTgtBase);
+		
+//		ArrayList<XLSDNSTable> lsh = all_sheets_2122_genap();
 //		ArrayList<XLSDNSTable> lsh = all_sheets_2122_ganjil();
+//		ArrayList<XLSDNSTable> lsh = all_sheets_2223_ganjil();
+		ArrayList<XLSDNSTable> lsh = default_sheets();
 		for (int i = 0; i < lsh.size(); i++) {
 			load_xls_database(lsh.get(i));
 			
 		}
 		
-		String dirPolnam = "F:/rsync/poltek/dns_ok_scanned/canon_lide_output/21_22_genap";
+//		String dirSrc = "F:/rsync/poltek/dns_ok_scanned/canon_lide_output/22_23_ganjil";
+//		dirSrc+="/problems";
+
 //		String dirPolnam = "F:/rsync/poltek/dns_ok_scanned/canon_lide_output/21_22_ganjil";
 		if (args.length > 1) {
 			if (args[0].equals("-d")) {
-				dirPolnam = args[1];
+				dirSrc = args[1];
 			} else {
 				System.out.println(args[0] + " is wrong");
-				System.out.println("java : java DNSChecker -d dirname");
+				System.out.println("java : java dnsmatch.MainApp -d dirname");
 				System.exit(-1);
 			}
 		}
 		
 		initialize_config();
-		extract_and_check_dir(dirPolnam);
+		extract_and_check_dir(dirSrc);
+		System.out.println("Done.. no more files to process");
 
 	}
-	
+
+	protected static ArrayList<XLSDNSTable> default_sheets() {
+		ArrayList<XLSDNSTable> ret = new ArrayList<XLSDNSTable>();
+		XLSDNSTable tb = new XLSDNSTable();// VI_B
+		ret.add(tb);
+
+		tb = new XLSDNSTable();
+		tb.xls_dir = "./problems/";
+		tb.xls_fname = "example.xlsx";
+		tb.sheetfn = "I_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 127;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "AD";
+		ret.add(tb);
+
+		return ret;
+	}
 	private static ArrayList<XLSDNSTable> all_sheets_2122_ganjil() {
 		// TODO Auto-generated method stub
 		ArrayList<XLSDNSTable> ret = new ArrayList<XLSDNSTable>();
@@ -208,6 +238,62 @@ public class MainApp {
 		return ret;
 	}
 
+	
+	private static ArrayList<XLSDNSTable> all_sheets_2223_ganjil() {
+		// TODO Auto-generated method stub
+		ArrayList<XLSDNSTable> ret = new ArrayList<XLSDNSTable>();
+		XLSDNSTable tb = new XLSDNSTable();// VI_B
+		ret.add(tb);
+
+		tb = new XLSDNSTable();
+		tb.xls_dir = "F:\\rsync\\poltek\\22_23\\ganjil\\kaprodi_evaluasi\\kajur";
+		tb.xls_fname = "dns EDIT_Kajur-Prodi Teknik Informatika_Ganjil 2022-2023 -.xlsx";
+		tb.sheetfn = "I_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 142;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "AP";
+		ret.add(tb);
+
+		tb = new XLSDNSTable();
+		tb.xls_dir = "F:\\rsync\\poltek\\22_23\\ganjil\\kaprodi_evaluasi\\kajur";
+		tb.xls_fname = "dns EDIT_Kajur-Prodi Teknik Informatika_Ganjil 2022-2023 -.xlsx";
+		tb.sheetfn = "III_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 136;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "AS";
+		ret.add(tb);
+		
+		tb = new XLSDNSTable();
+		tb.xls_dir = "F:\\rsync\\poltek\\22_23\\ganjil\\kaprodi_evaluasi\\kajur";
+		tb.xls_fname = "dns EDIT_Kajur-Prodi Teknik Informatika_Ganjil 2022-2023 -.xlsx";
+		tb.sheetfn = "V_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 128;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "AA";
+		ret.add(tb);
+		
+		tb = new XLSDNSTable();
+		tb.xls_dir = "F:\\rsync\\poltek\\22_23\\ganjil\\kaprodi_evaluasi\\kajur";
+		tb.xls_fname = "dns EDIT_Kajur-Prodi Teknik Informatika_Ganjil 2022-2023 -.xlsx";
+		tb.sheetfn = "VII_ABC"; // SEMESTEr will use this
+		tb.row_begin = 8;
+		tb.row_end = 109;
+		tb.NAMA_col = "B"; // B
+		tb.NIM_col = "C";// C
+		tb.IPK_col = "AA";
+		ret.add(tb);
+
+		
+
+		return ret;
+	}
+
 	/**
 	 * check all jpg in dir
 	 * 
@@ -224,14 +310,39 @@ public class MainApp {
 				return name.toLowerCase().endsWith(".jpg");
 			}
 		});
+		if(files==null) {
+			System.err.println("no files to verify, source dir: "+dirSrc);
+			System.exit(-3);
+		}
 		Arrays.sort(files, Comparator.comparingLong(File::lastModified));
 		for (int i = 0; i < files.length; i++) {
 			hFN = files[i].getAbsolutePath();
 			System.out.println(new Date());
 			System.out.println("Processing: " + hFN);
-			DNSRecord found = ROI_check_single(hFN);
+			DNSRecord found = null;
+			
+			if(found ==null) {
+				found = fullpage_check_single(hFN);
+			}
+
+			if (found==null) {
+				found=ROI_check_single(hFN);
+			}
+			
+			/*
+			if(found ==null) {
+				found = collective_check_single(hFN);
+			}*/
+			
+			
 			if (found != null) {
+				if(moveAfterCheck) {
 				move_found(found);
+				}else {
+					System.out.println(hFN);
+					System.out.println("Found but not moved");
+				}
+				
 			} else {
 				System.out.println("found failed: " + hFN);
 				if(debug_stop) {
@@ -277,7 +388,7 @@ public class MainApp {
 			throw new Exception("'Bad semester': " + found);
 		}
 
-		String target_dir = base_dir + "/" + year + "/" + found.NIM;
+		String target_dir = dirTgtBase + "/" + year + "/" + found.NIM;
 		File dir2create = new File(target_dir);
 		dir2create.mkdirs();
 //		System.out.println("target dir:" + target_dir);
@@ -393,7 +504,7 @@ public class MainApp {
 		tfieldNIM = TemplateValueExtractor.readDeskew(dirTPL + "/nim/NIM_field.jpg",false);
 //		tfieldCOLLECTIVE = TemplateValueExtractor.readDeskew(dirTPL + "/COLLECTIVE_field.jpg",true);
 //		tfieldCOLLECTIVE = TemplateValueExtractor.readDeskew(dirTPL + "/COLLECTIVE_L_field.jpg",true);
-		tfieldCOLLECTIVE = TemplateValueExtractor.readDeskew(dirTPL + "/COLLECTIVE_c_tfield.jpg",true);
+		tfieldCOLLECTIVE = TemplateValueExtractor.readDeskew(dirTPL + "/COLLECTIVE_field.jpg",true);
 		tfieldNAMA = TemplateValueExtractor.readDeskew(dirTPL + "/nama/nama_field.jpg",false);
 		tfieldTTL = TemplateValueExtractor.readDeskew(dirTPL + "/ttl/ttl_field.jpg",false);
 		tfieldIPK = TemplateValueExtractor.readDeskew(dirTPL + "/ipk/ipk_field.jpg",false);
@@ -401,9 +512,9 @@ public class MainApp {
 		System.out.println("Templates read from "+dirTPL);
 	}
 
-	public static DNSRecord ROI_check_single(String hFN) throws Exception {
+
+public static DNSRecord ROI_check_single(String hFN) throws Exception {
 		DNSRecord found = null;
-		String logDir="F:\\rsync\\eclipse2022_wspace\\opencvTest01\\logROI";
 		String LEVHN_NIM = null, LEVHN_NAMA = null;
 //		String hFN = dirTPL + "/haystack.jpg";
 
@@ -412,6 +523,7 @@ public class MainApp {
 		TemplateValueExtractor x = new TemplateValueExtractor(null);
 		getTesseract().setVariable("user_defined_dpi", "300");
 
+		// TODO looping here if collective is a directory ...
 		ExtractionInfo ei=extract_right(logDir+"/COLLECTIVE","COLLECTIVE",haystack,tfieldCOLLECTIVE,x,true);
 
 		
@@ -440,7 +552,7 @@ public class MainApp {
 		ExtractionInfo info = (ExtractionInfo) x.extractValue("NIM");
 		String[] sar = info.value.split("\n");
 		info.value = sar[0];
-		sar = info.value.split(" ");
+		sar = info.value.split(" ");	
 		if (sar[0].length() == 10)
 			info.value = sar[0]; // NIM on first word ==> 1320144033 7 4 7
 		String s = info.value.trim().toUpperCase().replaceAll("\\s", "").replace("|", "");
@@ -535,7 +647,7 @@ public class MainApp {
 				if (ipkstr.trim().length() == 3 && Float.parseFloat(ipkstr) > 0) {
 					ipkstr = ipkstr.substring(0, 1) + "." + ipkstr.substring(1, 3);// \dns_scan__20220825_0015.jpg 323
 				} else
-					throw new Exception("IPK not same: ->" + ipkstr + "!=" + found.ipk + "<- " + found);
+					throw new Exception("IPK not same: ->" + ipkstr + " (ocr) !=" + found.ipk + " (Excel) <- " + found);
 			}
 		}
 		return found;
@@ -547,38 +659,17 @@ public class MainApp {
 	public static DNSRecord fullpage_check_single(String hFN) throws Exception {
 		DNSRecord found = null;
 		String LEVHN_NIM = null, LEVHN_NAMA = null;
-//		String hFN = dirTPL + "/haystack.jpg";
 
 		Mat haystack = TemplateValueExtractor.readDeskew(hFN,true);
-//		x.setOutputDirectory(dir);
-		TemplateValueExtractor x = new TemplateValueExtractor(null);
-		x.setTesseract(getTesseract());
-		tesseract.setVariable("user_defined_dpi", "300");
-
-//		x.getTesseract().setPageSegMode(7); // for semester is good with 7
-//		x.getTesseract().setVariable("tessedit_char_whitelist", " IV|");// unset white list character
-//		extract_right(dir+"/semester","SEMESTER",haystack,tfieldSEMESTER,x);
-//		extract_right(null, "SEMESTER", haystack, tfieldSEMESTER, x);
-
-		x.getTesseract().setPageSegMode(7); // for semester is good with 7
-		x.getTesseract().setVariable("tessedit_char_whitelist", " 0123456789|");// unset white list character
-//		extract_right(dir+"/nim","NIM",haystack,tfieldNIM,x);
-		extract_right(null, "NIM", haystack, tfieldNIM, x);
-
-		x.getTesseract().setPageSegMode(1); // for semester is good with 7
-		x.getTesseract().setVariable("tessedit_char_whitelist", "");// unset white list character
-		extract_right(null, "NAMA", haystack, tfieldNAMA, x);
-
-		x.getTesseract().setPageSegMode(1); // for semester is good with 7
-		x.getTesseract().setVariable("tessedit_char_whitelist", "");// unset white list character
-		extract_right(null, "TTL", haystack, tfieldTTL, x);
-
-		extract_right_inside(dirTPL+"/ipk","IPK",haystack,tAllIPK,tfieldIPK,x);
-		x.getTesseract().setVariable("tessedit_char_whitelist", " .,0123456789");// unset white list character
-//		extract_right_inside(null, "IPK", haystack, tAllIPK, tfieldIPK, x);
-
+		getTesseract().setVariable("user_defined_dpi", "300");
+		getTesseract().setVariable("tessedit_char_whitelist", "");// unset white list character
+		
+		FullPageExtractor xtr = new FullPageExtractor(logDir, haystack, getTesseract());
+		xtr.init();
 		// exact matches of NIM and nama
-		ExtractionInfo info = (ExtractionInfo) x.extractValue("NIM");
+		ExtractionInfo info = (ExtractionInfo) xtr.extractValue("NIM");
+		
+		if(info==null||info.value==null)return null;
 		String[] sar = info.value.split("\n");
 		info.value = sar[0];
 		sar = info.value.split(" ");
@@ -601,7 +692,7 @@ public class MainApp {
 		}
 
 		if (found == null) {// exact NIM no ?
-			info = (ExtractionInfo) x.extractValue("NAMA");
+			info = (ExtractionInfo) xtr.extractValue("NAMA");
 			sar = info.value.split("\n");
 			info.value = sar[0];
 			LEVHN_NAMA=info.value;
@@ -628,13 +719,22 @@ public class MainApp {
 
 		if (found != null) {
 			found.ocr_image_filename = hFN;
-			info = (ExtractionInfo) x.extractValue("IPK");
+			info = (ExtractionInfo) xtr.extractValue("IPK");
 			String ipkstr = info.value.replace(",", ".").trim().replace("|", "");
-			if (Float.parseFloat(ipkstr) != found.ipk) {
-				if (ipkstr.trim().length() == 3 && Float.parseFloat(ipkstr) > 0) {
+			
+			if(ipkstr.equalsIgnoreCase("null") || ipkstr.length()<2) {
+				System.err.println("Error parsing IPK : \""+ipkstr+"\"");
+//				System.exit(ERROR_PARSE);
+				return null ; // TODO ??
+			}
+			System.out.println("IPK String :" +ipkstr+", l: "+ipkstr.length());
+			float ipkFloat=Float.parseFloat(ipkstr);
+			if (( ipkFloat- found.ipk)>0.009 ) {
+
+				if (ipkstr.trim().length() == 3 && ipkFloat > 0) {
 					ipkstr = ipkstr.substring(0, 1) + "." + ipkstr.substring(1, 3);// \dns_scan__20220825_0015.jpg 323
 				} else
-					throw new Exception("IPK not same: ->" + ipkstr + "!=" + found.ipk + "<- " + found);
+					throw new Exception("IPK not same: ->" + ipkstr + "(ocred) !=" + found.ipk + " (EXCEL) <- " + found);
 			}
 		}
 		return found;

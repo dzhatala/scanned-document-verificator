@@ -1,4 +1,9 @@
 TODO:
+- multiple templates [variational] checks  [collectives folder]
+	- looping for templates in DNSRecord ROI_check_single(String hFN) 
+- auto moving to 'problems' folder ... for !exit_on_error
 - full_page_check vs single_check_roi ?
 - 	false alarm of NIM detection ... 
 	false positive ?
+- rotated scanned page detection with tesseract psm ?
+- join ipk,nim,nama check functions ... in full_page and roi based
