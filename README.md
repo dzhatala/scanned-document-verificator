@@ -36,3 +36,6 @@ new_rw32.bat
 
 run_win32.bat
 
+author: Zulkarnaen Hatala
+dzulqaranaenhatala@gmail.com
+
