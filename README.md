@@ -15,7 +15,7 @@ OpenJDK 64-Bit Server VM Temurin-17.0.2+8 (build 17.0.2+8, mixed mode)
 
 install :
 copy directories portable_jars problems bin
-
+copy opencv_java460.dll into current dir.  or java.exe dir.
 run:
 new_rw32.bat
 run_win32.bat
