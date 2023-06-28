@@ -6,13 +6,11 @@ set PATH=j:\master_yoga\java\eclipse-java-2022-03-R-win32-x86_64\eclipse\plugins
 
 @rem 
 set CP=
-set CP=C:\Users\yoga520\.m2\repository\org\apache\commons\commons-imaging\1.0-alpha3\commons-imaging-1.0-alpha3.jar
+rem set CP=C:\Users\yoga520\.m2\repository\org\apache\commons\commons-imaging\1.0-alpha3\commons-imaging-1.0-alpha3.jar
 rem 
 set CP=F:\rsync\RESEARCHS\text_recognition_ocr_dns_scan\opencv\opencv\build\java\opencv-460.jar;%CP%
-rem 
-set CP=F:\rsync\RESEARCHS\text_recognition_ocr_dns_scan\tesseract_win\tess4j_01\jar_files\*.jar;%CP%
-rem 
-set CP=C:\Users\yoga520\.m2\repository\org\apache\sanselan\sanselan\0.97-incubator\sanselan-0.97-incubator.jar;%CP%
+rem set CP=F:\rsync\RESEARCHS\text_recognition_ocr_dns_scan\tesseract_win\tess4j_01\jar_files\*.jar;%CP%
+rem set CP=C:\Users\yoga520\.m2\repository\org\apache\sanselan\sanselan\0.97-incubator\sanselan-0.97-incubator.jar;%CP%
 
 
 set JF=F:\rsync\RESEARCHS\text_recognition_ocr_dns_scan\tesseract_win\tess4j_01\jar_files
