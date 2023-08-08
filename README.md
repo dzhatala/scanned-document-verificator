@@ -1,3 +1,8 @@
+#requirements:
+tesseract executable 
+tess4j
+opencv java
+
 # scanned-document-verificator
 
 This is eclipse 2022 java project, more on eclipse

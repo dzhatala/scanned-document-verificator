@@ -37,6 +37,8 @@ set CP=portable_jars\slf4j-api-1.7.36.jar;%CP%
 set CP=portable_jars\SparseBitSet-1.2.jar;%CP%
 set CP=portable_jars\tess4j-5.2.1.jar;%CP%
 set CP=portable_jars\xmlbeans-5.0.3.jar;%CP%
+set CP=portable_jars\commons-imaging-1.0-alpha1.jar;%CP%
+set CP=portable_jars\sanselan-0.97-incubator.jar;%CP%
 
 
 :NO_SET_CP

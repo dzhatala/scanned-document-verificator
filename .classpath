@@ -23,7 +23,7 @@
 	<classpathentry kind="lib" path="F:/rsync/RESEARCHS/plagiarisms/apache_poi_word_doc2txt/poi-bin-5.2.2-20220312/poi-bin-5.2.2/lib/log4j-api-2.17.2.jar"/>
 	<classpathentry kind="lib" path="F:/rsync/RESEARCHS/plagiarisms/apache_poi_word_doc2txt/poi-bin-5.2.2-20220312/poi-bin-5.2.2/ooxml-lib/commons-compress-1.21.jar"/>
 	<classpathentry kind="lib" path="F:/rsync/RESEARCHS/plagiarisms/apache_poi_word_doc2txt/poi-bin-5.2.2-20220312/poi-bin-5.2.2/poi-ooxml-full-5.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/sanselan-0.97-incubator.jar"/>
-	<classpathentry kind="lib" path="lib/commons-imaging-1.0-alpha1.jar"/>
+	<classpathentry kind="lib" path="F:/rsync/eclipse2022_wspace/opencvTest01/portable_jars/sanselan-0.97-incubator.jar"/>
+	<classpathentry kind="lib" path="F:/rsync/eclipse2022_wspace/opencvTest01/portable_jars/commons-imaging-1.0-alpha1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

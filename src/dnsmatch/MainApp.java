@@ -823,7 +823,8 @@ public static DNSRecord ROI_check_single(String hFN) throws Exception {
 		if (tesseract == null) {
 			tesseract = new Tesseract();
 //			tesseract.setDatapath("c:/cygwin32/usr/share/tessdata");
-			tesseract.setDatapath("c:/cygwin64/usr/share/tessdata");
+//			tesseract.setDatapath("c:/cygwin64/usr/share/tessdata");
+			tesseract.setDatapath("c:/rps/cygwin64/usr/share/tessdata");
 
 			tesseract.setVariable("tessedit_char_whitelist", " 0123456789. ,");
 			tesseract.setVariable("user_defined_dpi", "300");
